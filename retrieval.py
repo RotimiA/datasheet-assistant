@@ -8,13 +8,13 @@
 
 import re
 
-from models import Chunk, PageText
+from models import Chunk
 
 WORD_RE = re.compile(r"\S+")
 
 
 def chunk_pages(
-    pages: list[PageText],
+    pages: list[str],
     chunk_words: int = 250,
     overlap_words: int = 50,
 ) -> list[Chunk]:
@@ -28,8 +28,8 @@ def chunk_pages(
     stride = chunk_words - overlap_words
     chunks: list[Chunk] = []
 
-    for page in pages:
-        words = list(WORD_RE.finditer(page.text))
+    for pdf_page, text in enumerate(pages, start=1):
+        words = list(WORD_RE.finditer(text))
         if not words:
             continue
 
@@ -41,9 +41,9 @@ def chunk_pages(
             end_char = words[end - 1].end()
             chunks.append(
                 Chunk(
-                    chunk_id=f"{page.pdf_page}:{start_char}:{end_char}",
-                    pdf_page=page.pdf_page,
-                    text=page.text[start_char:end_char],
+                    chunk_id=f"{pdf_page}:{start_char}:{end_char}",
+                    pdf_page=pdf_page,
+                    text=text[start_char:end_char],
                     start_char=start_char,
                     end_char=end_char,
                 )
